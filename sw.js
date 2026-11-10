@@ -2,17 +2,14 @@
    The whole app is a single HTML page with inline script, so caching the
    app shell makes it fully usable with no network. Records live in
    localStorage on the device and are never sent anywhere. */
-const CACHE = 'eot-cranes-v2';
+const CACHE = 'eot-cranes-v4';
+const ROOT = self.registration.scope;
 const SHELL = [
-  '/',
-  '/manifest.webmanifest',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/icon-maskable-192.png',
-  '/icons/icon-maskable-512.png',
-  '/icons/apple-touch-icon.png',
-  '/favicon-32.png'
-];
+  '', 'manifest.webmanifest',
+  'icons/icon-192.png', 'icons/icon-512.png',
+  'icons/icon-maskable-192.png', 'icons/icon-maskable-512.png',
+  'icons/apple-touch-icon.png', 'icons/favicon-32.png'
+].map((p) => ROOT + p);
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -37,13 +34,15 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   // Only handle our own origin; leave Netlify's injected scripts etc. alone.
   if (url.origin !== self.location.origin) return;
+  // Live records are always fetched fresh from the network.
+  if (url.pathname.endsWith('/data.json')) return;
 
   // Page loads: network first (fresh app), fall back to the cached shell offline.
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req)
-        .then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put('/', cp)); return r; })
-        .catch(() => caches.match('/').then((r) => r || caches.match(req)))
+        .then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(ROOT, cp)); return r; })
+        .catch(() => caches.match(ROOT).then((r) => r || caches.match(req)))
     );
     return;
   }
