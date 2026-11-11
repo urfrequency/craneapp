@@ -1,6 +1,6 @@
 {
-  "name": "EOT Cranes — Record Book",
-  "short_name": "EOT Cranes",
+  "name": "EOT Cranes — View only",
+  "short_name": "EOT View",
   "description": "Maintenance record book for EOT overhead cranes — specs, measurements, rope changes, inspections and stocks. Works offline; data is saved on the device.",
   "id": "./",
   "start_url": "./",
